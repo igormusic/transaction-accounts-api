@@ -1,0 +1,10 @@
+dependency-injector
+fastapi
+uvicorn
+sqlalchemy
+pytest
+requests
+pytest-cov
+psycopg2-binary
+httpx
+transaction-accounts

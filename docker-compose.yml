@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: accounts
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      retries: 10
+
+  webapp:
+    build: ./
+    image: webapp
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./:/code"
+    environment:
+        ACCOUNTS_DB_URL: "postgresql://postgres:postgres@db:5432/accounts"
+    depends_on:
+      db:
+        condition: service_healthy
