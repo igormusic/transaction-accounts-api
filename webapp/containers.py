@@ -3,8 +3,8 @@ import os
 
 from dependency_injector import containers, providers
 from webapp.database import Database
-from webapp.repositories import AccountTypeRepository
-from webapp.services import AccountTypeService
+from webapp.repositories import AccountTypeRepository, AccountRepository
+from webapp.services import AccountTypeService, AccountService
 
 
 class Container(containers.DeclarativeContainer):
@@ -23,4 +23,19 @@ class Container(containers.DeclarativeContainer):
         AccountTypeService,
         account_type_repository=account_type_repository,
     )
+
+    account_repository = providers.Factory(
+        AccountRepository,
+        session_factory=db.provided.session,
+    )
+
+    account_service = providers.Factory(
+        AccountService,
+        account_repository=account_repository,
+    )
+
+
+
+
+
 
