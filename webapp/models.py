@@ -9,3 +9,12 @@ class AccountTypeData(Base):
     __tablename__ = 'account_types'
     name = Column(String, primary_key=True, index=True)
     model = Column(JSON)
+
+
+class AccountData(Base):
+    __tablename__ = 'accounts'
+    account_id = Column(Integer, primary_key=True, index=True)
+    account_type = Column(String, index=True)
+    active = Column(Boolean, default=True)
+    model = Column(JSON)
+

@@ -1,10 +1,11 @@
 """Endpoints module."""
 from accounts.metadata import AccountType
+from accounts.runtime import Account
 from fastapi import APIRouter, Depends, Response, status
 from dependency_injector.wiring import inject, Provide
 
 from .containers import Container
-from .services import AccountTypeService
+from .services import AccountTypeService, AccountService
 from .repositories import NotFoundError
 
 router = APIRouter()
@@ -60,3 +61,50 @@ def delete_account_type(
     else:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
+@router.post("/accounts/", status_code=status.HTTP_201_CREATED)
+@inject
+def create_account(
+        account: Account,
+        account_service: AccountService = Depends(Provide[Container.account_service]),
+):
+    try:
+        account_service.create_account(account)
+    except NotFoundError:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status_code=status.HTTP_201_CREATED)
+
+
+@router.get("/accounts/")
+@inject
+def get_accounts(
+        account_service: AccountService = Depends(Provide[Container.account_service]),
+):
+    return account_service.get_accounts()
+
+
+@router.get("/accounts/{account_id}")
+@inject
+def get_account_by_id(
+        account_id: int,
+        account_service: AccountService = Depends(Provide[Container.account_service]),
+):
+    try:
+        return account_service.get_account_by_id(account_id)
+    except NotFoundError:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+
+
+@router.delete("/accounts/{account_id}", status_code=status.HTTP_204_NO_CONTENT)
+@inject
+def delete_account(
+        account_id: int,
+        account_service: AccountService = Depends(Provide[Container.account_service]),
+):
+    try:
+        account_service.delete_account(account_id)
+    except NotFoundError:
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
