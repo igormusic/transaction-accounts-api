@@ -61,7 +61,7 @@ class AccountRepository:
 
     def create_account(self, account: Account) -> int:
         with self.session_factory() as session:
-            account_obj = AccountData(account_type=account.account_type, active=False, model=account.json())
+            account_obj = AccountData(account_type=account.account_type_name, active=False, model=account.json())
             session.add(account_obj)
             session.commit()
             session.refresh(account_obj)

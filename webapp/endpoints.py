@@ -3,6 +3,7 @@ from accounts.metadata import AccountType
 from accounts.runtime import Account
 from fastapi import APIRouter, Depends, Response, status
 from dependency_injector.wiring import inject, Provide
+from starlette.responses import JSONResponse
 
 from .containers import Container
 from .services import AccountTypeService, AccountService
@@ -69,11 +70,11 @@ def create_account(
         account_service: AccountService = Depends(Provide[Container.account_service]),
 ):
     try:
-        account_service.create_account(account)
+        account_id = account_service.create_account(account)
     except NotFoundError:
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status_code=status.HTTP_201_CREATED)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content={"account_id": account_id})
 
 
 @router.get("/accounts/")

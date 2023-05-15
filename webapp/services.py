@@ -38,7 +38,7 @@ class AccountService:
     def get_account_by_id(self, id: int) -> Account:
         return self._repository.get_account_by_id(id)
 
-    def create_account(self, account: Account) -> None:
+    def create_account(self, account: Account) -> int:
         return self._repository.create_account(account)
 
     def delete_account(self, account_id: int) -> None:

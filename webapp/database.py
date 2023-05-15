@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Base(DeclarativeBase):
     __abstract__ = True
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
 
