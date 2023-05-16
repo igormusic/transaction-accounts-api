@@ -6,7 +6,7 @@ from typing import Callable, Iterator, List
 from accounts.metadata import AccountType
 from accounts.runtime import Account
 from sqlalchemy.orm import Session
-from .models import AccountTypeData, AccountData
+from .models import AccountTypeData, AccountData, AccountInfo
 
 
 class AccountTypeRepository:
@@ -46,18 +46,20 @@ class AccountRepository:
     def __init__(self, session_factory: Callable[..., AbstractContextManager[Session]]) -> None:
         self.session_factory = session_factory
 
-    def get_accounts(self) -> List[Account]:
+    def get_accounts(self) -> List[AccountInfo]:
         with self.session_factory() as session:
             accounts = session.query(AccountData).all()
-            return [Account.parse_raw(account.model) for account in accounts]
+            return [AccountInfo(account=Account.parse_raw(account.model), account_id=account.account_id,
+                                active=account.active) for account in accounts]
 
-    def get_account_by_id(self, id: int) -> Account:
+    def get_account_by_id(self, id: int) -> AccountInfo:
         with self.session_factory() as session:
             account = session.query(AccountData).filter(AccountData.account_id == id).first()
 
         if not account:
             raise AccountNotFound(id)
-        return Account.parse_raw(account.model)
+        return AccountInfo(account=Account.parse_raw(account.model), account_id=account.account_id,
+                           active=account.active)
 
     def create_account(self, account: Account) -> int:
         with self.session_factory() as session:

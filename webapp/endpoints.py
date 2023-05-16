@@ -1,11 +1,14 @@
 """Endpoints module."""
+from typing import List, Union
+
 from accounts.metadata import AccountType
 from accounts.runtime import Account
 from fastapi import APIRouter, Depends, Response, status
 from dependency_injector.wiring import inject, Provide
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from .containers import Container
+from .models import AccountInfo
 from .services import AccountTypeService, AccountService
 from .repositories import NotFoundError
 
@@ -81,7 +84,7 @@ def create_account(
 @inject
 def get_accounts(
         account_service: AccountService = Depends(Provide[Container.account_service]),
-):
+) -> List[AccountInfo]:
     return account_service.get_accounts()
 
 
@@ -90,7 +93,7 @@ def get_accounts(
 def get_account_by_id(
         account_id: int,
         account_service: AccountService = Depends(Provide[Container.account_service]),
-):
+) -> Union[AccountInfo, Response]:
     try:
         return account_service.get_account_by_id(account_id)
     except NotFoundError:

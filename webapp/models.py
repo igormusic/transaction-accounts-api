@@ -1,5 +1,6 @@
 """Models module."""
-
+from accounts.runtime import Account
+from pydantic.main import BaseModel
 from sqlalchemy import Column, String, Boolean, Integer, JSON
 
 from .database import Base
@@ -18,3 +19,8 @@ class AccountData(Base):
     active = Column(Boolean, default=True)
     model = Column(JSON)
 
+
+class AccountInfo(BaseModel):
+    account_id: int
+    active: bool
+    account: Account

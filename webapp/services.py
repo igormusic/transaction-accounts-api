@@ -1,11 +1,12 @@
 """Services module."""
 
 from uuid import uuid4
-from typing import Iterator
+from typing import Iterator, List
 
 from accounts.metadata import AccountType
 from accounts.runtime import Account
 
+from .models import AccountInfo
 from .repositories import AccountTypeRepository, AccountRepository
 
 
@@ -32,10 +33,10 @@ class AccountService:
     def __init__(self, account_repository: AccountRepository) -> None:
         self._repository: AccountRepository = account_repository
 
-    def get_accounts(self) -> Iterator[Account]:
+    def get_accounts(self) -> List[AccountInfo]:
         return self._repository.get_accounts()
 
-    def get_account_by_id(self, id: int) -> Account:
+    def get_account_by_id(self, id: int) -> AccountInfo:
         return self._repository.get_account_by_id(id)
 
     def create_account(self, account: Account) -> int:
