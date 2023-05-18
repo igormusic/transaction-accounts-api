@@ -32,6 +32,7 @@ class Container(containers.DeclarativeContainer):
     account_service = providers.Factory(
         AccountService,
         account_repository=account_repository,
+        account_type_repository=account_type_repository,
     )
 
 

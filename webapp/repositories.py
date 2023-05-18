@@ -61,14 +61,15 @@ class AccountRepository:
         return AccountInfo(account=Account.parse_raw(account.model), account_id=account.account_id,
                            active=account.active)
 
-    def create_account(self, account: Account) -> int:
+    def create_account(self, account: Account) -> AccountInfo:
         with self.session_factory() as session:
             account_obj = AccountData(account_type=account.account_type_name, active=False, model=account.json())
             session.add(account_obj)
             session.commit()
             session.refresh(account_obj)
 
-        return account_obj.account_id
+        return AccountInfo(account=account, account_id=account_obj.account_id,
+                           active=account_obj.active)
 
     def delete_account(self, id: int) -> None:
         with self.session_factory() as session:
@@ -78,7 +79,7 @@ class AccountRepository:
             session.delete(account)
             session.commit()
 
-    def update_account(self, account_id: int, account: Account, active: bool) -> None:
+    def update_account(self, account_id: int, active: bool, account: Account) -> None:
         with self.session_factory() as session:
             account_obj = session.query(AccountData).filter(AccountData.account_id == account_id).first()
             if not account_obj:
