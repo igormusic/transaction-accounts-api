@@ -1,12 +1,11 @@
 """Services module."""
-from datetime import datetime
-from uuid import uuid4
+from datetime import datetime, date
 from typing import Iterator, List
 
 from accounts.metadata import AccountType
 from accounts.runtime import Account, AccountValuation
 
-from .models import AccountInfo, AccountData
+from .models import AccountInfo
 from .repositories import AccountTypeRepository, AccountRepository
 
 
@@ -70,5 +69,16 @@ class AccountService:
         valuation = AccountValuation(account, account_type, end_date, False)
 
         payment = valuation.solve_instalment()
+
+        return valuation
+
+    def value(self, account_id: int, action_date: date) -> AccountValuation:
+        account_info = self._repository.get_account_by_id(account_id)
+        account = account_info.account
+        account_type = self._account_type_repository.get_account_type_by_name(account.account_type_name)
+
+        valuation = AccountValuation(account=account, account_type=account_type, action_date=action_date, trace=True)
+
+        valuation.forecast(action_date, {})
 
         return valuation

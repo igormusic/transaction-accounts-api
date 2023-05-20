@@ -1,4 +1,5 @@
 """Endpoints module."""
+from datetime import date
 from typing import List, Union
 
 from accounts.metadata import AccountType
@@ -8,7 +9,7 @@ from dependency_injector.wiring import inject, Provide
 from starlette.responses import JSONResponse, Response
 
 from .containers import Container
-from .models import AccountInfo
+from .models import AccountInfo, ForcastResult
 from .services import AccountTypeService, AccountService
 from .repositories import NotFoundError
 import logging
@@ -115,6 +116,22 @@ def delete_account(
         return Response(status_code=status.HTTP_404_NOT_FOUND)
     else:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get("/accounts/{account_id}/value")
+@inject
+def value_account(
+        account_id: int,
+        action_date: date,
+        account_service: AccountService = Depends(Provide[Container.account_service])) -> ForcastResult:
+    try:
+        valuation = account_service.value(account_id, action_date)
+
+        return ForcastResult(account_id=account_id, account= valuation.account, trace_list=valuation.trace_list)
+
+    except Exception as e:
+        logging.error(e)
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/accounts/{account_id}/solve")

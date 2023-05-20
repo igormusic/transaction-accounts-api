@@ -1,5 +1,7 @@
 """Models module."""
-from accounts.runtime import Account
+from typing import List
+
+from accounts.runtime import Account, TransactionTrace
 from pydantic.main import BaseModel
 from sqlalchemy import Column, String, Boolean, Integer, JSON
 
@@ -24,3 +26,9 @@ class AccountInfo(BaseModel):
     account_id: int
     active: bool
     account: Account
+
+
+class ForcastResult(BaseModel):
+    account_id: int
+    account: Account
+    trace_list: List[TransactionTrace]
