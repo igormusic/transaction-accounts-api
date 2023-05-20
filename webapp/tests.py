@@ -8,10 +8,36 @@ import pytest
 from accounts.metadata import AccountType, ScheduleType, TransactionOperation, ScheduledTransactionTiming, DataType, \
     ScheduleEndType, ScheduleFrequency, BusinessDayAdjustment
 from accounts.runtime import Account
+from dependency_injector.wiring import Provide
+from fastapi import FastAPI, Depends
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, StaticPool
 
+from . import endpoints
+from .containers import Container
+from .database import Base, Database
 from .repositories import NotFoundError, AccountTypeRepository, AccountRepository
-from .application import app
+from .services import AccountService
+
+
+def create_test_app():
+    container = Container()
+
+    db = Database(
+        engine=create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False}, echo=True,
+                             poolclass=StaticPool))
+
+    container.db.override(db)
+
+    db.create_database()
+
+    test_app = FastAPI()
+    test_app.container = container
+    test_app.include_router(endpoints.router)
+    return test_app
+
+
+app = create_test_app()
 
 
 @pytest.fixture
@@ -125,6 +151,29 @@ def test_create_account(client):
     assert response.status_code == 201
 
     account_repository_mock.create_account.assert_called_once()
+
+
+def test_create_account_in_memory(client):
+    repository = app.container.account_type_repository()
+
+    repository.create_account_type(create_loan_account_type())
+
+    request = {
+        "start_date": "2013-03-08",
+        "account_type_name": "Loan",
+        "properties": {
+            "advance": 624000,
+            "payment": 0
+        },
+        "dates": {
+            "accrual_start": "2013-03-08",
+            "end_date": "2038-03-08"
+        }
+    }
+
+    response = client.post("/accounts", json=request)
+
+    assert response.status_code == 201
 
 
 def create_loan():

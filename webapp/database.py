@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Callable
 import logging
 
-from sqlalchemy import create_engine, orm, Column, DateTime
+from sqlalchemy import create_engine, orm, Column, DateTime, Engine
 from sqlalchemy.orm import Session, DeclarativeBase
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,12 @@ class Base(DeclarativeBase):
 
 class Database:
 
-    def __init__(self, db_url: str) -> None:
-        self._engine = create_engine(db_url)
+    def __init__(self, db_url: str = None, engine: Engine = None) -> None:
+        if engine is not None:
+            self._engine = engine
+        else:
+            self._engine = create_engine(db_url)
+
         self._session_factory = orm.scoped_session(
             orm.sessionmaker(
                 autocommit=False,

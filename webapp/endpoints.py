@@ -18,6 +18,7 @@ router = APIRouter()
 # configure the logging module
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
+
 @router.get("/status")
 def get_status():
     return {"status": "OK"}
@@ -73,7 +74,7 @@ def delete_account_type(
 @inject
 def create_account(
         account: Account,
-        account_service: AccountService = Depends(Provide[Container.account_service])) :
+        account_service: AccountService = Depends(Provide[Container.account_service])):
     try:
         account_info = account_service.create_account(account)
     except Exception as e:
